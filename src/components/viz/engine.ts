@@ -51,7 +51,13 @@ export const useAnimatedSteps = <S>(
     setPlaying(true);
     let i = 0;
     timer.current = window.setInterval(() => {
-      setState((prev) => steps[i].apply(prev));
+      const step = steps[i]; // capture by value — updater must not read mutable i
+      if (!step) {
+        stop();
+        setPlaying(false);
+        return;
+      }
+      setState((prev) => step.apply(prev));
       setIndex(i);
       i += 1;
       if (i >= steps.length) {
