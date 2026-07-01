@@ -12,11 +12,11 @@ export const studentToCsv = (bundle: ExportBundle): string => {
   const courseKeys = bundle.pastCourses.length ? Object.keys(bundle.pastCourses[0]) : [];
   const header = [...highSchoolKeys.map((k) => `hs_${k}`), 'algorithm', ...courseKeys].join(',');
   const source = bundle.pastCourses.length ? bundle.pastCourses : [{}];
+  const hs = bundle.highSchool as unknown as Record<string, unknown>;
   const rows = source.map((course) => {
-    const hsValues = highSchoolKeys.map((k) =>
-      escapeCsvCell((bundle.highSchool as Record<string, unknown>)[k]));
-    const courseValues = courseKeys.map((k) =>
-      escapeCsvCell((course as Record<string, unknown>)[k]));
+    const courseRecord = course as Record<string, unknown>;
+    const hsValues = highSchoolKeys.map((k) => escapeCsvCell(hs[k]));
+    const courseValues = courseKeys.map((k) => escapeCsvCell(courseRecord[k]));
     return [...hsValues, escapeCsvCell(bundle.algorithm), ...courseValues].join(',');
   });
   return `﻿${[header, ...rows].join('\n')}`; // BOM so Hebrew opens correctly in Excel

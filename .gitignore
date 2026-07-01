@@ -3,3 +3,4 @@ dist/
 *.local
 .vite/
 pdf/out.txt
+*.tsbuildinfo
