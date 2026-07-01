@@ -12,6 +12,7 @@ export const makePastCourse = (overrides: Partial<PastCourse> = {}): PastCourse 
   firstLearnHrs: 30, examPrepHrs: 25, dailyPastExamHrs: 2, practiceAfter: true,
   hwWeight: 15, hwHonesty: 'independent', methodSolo: 60, methodFriend: 30, methodTutor: 10,
   finalExam: 75, courseAvg: 78, moedB: false,
+  moedAGrade: 0, moedBGrade: 0, moedCGrade: 0, passedOn: 'first', isRetake: false,
   ...overrides,
 });
 

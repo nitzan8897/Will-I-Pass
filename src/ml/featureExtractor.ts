@@ -1,14 +1,19 @@
 /* featureExtractor — turn a course into a feature vector + build the training set.
    Training data is the student's own past courses only (no synthetic data). */
 
-import type { HighSchool, PastCourse, TargetCourse } from '../types';
+import type { HighSchool, PassedOn, PastCourse, TargetCourse } from '../types';
 
 export const FEATURE_NAMES: readonly string[] = [
   'ממוצע בגרות', 'ציון מתמטיקה', 'ציון מדמ"ח', 'יח"ל מתמטיקה', 'יח"ל מדמ"ח',
   'קורס מתמטי', 'קורס מדמ"ח', 'נק"ז', 'שעות למידה ראשונית', 'שעות הכנה למבחן',
   'שעות יומיות פתרון מבחנים', 'תרגול מיידי', 'משקל שיעורי בית', 'מדד העתקה',
   'אחוז לימוד לבד', 'אחוז עם חבר', 'אחוז מורה פרטי', "ניגש למועד ב'",
+  'קורס חוזר', 'מועד שבו עבר',
 ];
+
+/** first=0 (best), second=1, third=2, none=3 (failed all). Target course → 0. */
+export const passedOnToIndex = (passedOn: PassedOn): number =>
+  ({ first: 0, second: 1, third: 2, none: 3 })[passedOn];
 
 /** Map homework honesty to a continuous number (0 = solo, 1 = full copy). */
 export const honestyToNumber = (course: PastCourse | TargetCourse): number => {
@@ -19,12 +24,18 @@ export const honestyToNumber = (course: PastCourse | TargetCourse): number => {
 
 const num = (value: number): number => (Number.isFinite(value) ? value : 0);
 
+const isPastCourse = (course: PastCourse | TargetCourse): course is PastCourse =>
+  'moedB' in course;
+
 /** Same feature order is used for training and prediction — required for consistency. */
 export const courseToFeatures = (
   course: PastCourse | TargetCourse,
   highSchool: HighSchool,
 ): number[] => {
-  const moedB = 'moedB' in course ? course.moedB : false;
+  const past = isPastCourse(course) ? course : null;
+  const moedB = past ? past.moedB : false;
+  const isRetake = past ? past.isRetake : false;
+  const passedOnIdx = past ? passedOnToIndex(past.passedOn) : 0;
   return [
     num(highSchool.gpa), num(highSchool.mathGrade), num(highSchool.csGrade),
     num(highSchool.mathUnits), num(highSchool.csUnits),
@@ -32,7 +43,7 @@ export const courseToFeatures = (
     num(course.firstLearnHrs), num(course.examPrepHrs), num(course.dailyPastExamHrs),
     course.practiceAfter ? 1 : 0, num(course.hwWeight), honestyToNumber(course),
     num(course.methodSolo), num(course.methodFriend), num(course.methodTutor),
-    moedB ? 1 : 0,
+    moedB ? 1 : 0, isRetake ? 1 : 0, passedOnIdx,
   ];
 };
 

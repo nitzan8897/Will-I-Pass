@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import type { PastCourse } from '../../types';
 import { makePastCourse } from '../../data/defaults';
 import { NumberField, TextField, CheckField, SelectField } from '../fields';
-import { HONESTY_OPTIONS } from './options';
+import { HONESTY_OPTIONS, PASSED_ON_OPTIONS } from './options';
 
 interface CardProps {
   index: number;
@@ -44,8 +44,20 @@ const CourseCard = ({ index, course, onChange, onRemove }: CardProps): ReactElem
       <div className="grid" style={{ marginTop: 10 }}>
         <NumberField label="ציון מבחן סופי" value={course.finalExam} onChange={(v) => set('finalExam', v)} />
         <NumberField label="ממוצע הקורס (תווית האימון)" value={course.courseAvg} onChange={(v) => set('courseAvg', v)} />
-        <CheckField label="ניגש למועד ב'" checked={course.moedB} onChange={(v) => set('moedB', v)} />
+        <CheckField label="ניגשתי ל-2 מבחנים (מועד ב')" checked={course.moedB} onChange={(v) => set('moedB', v)} />
       </div>
+      {course.moedB && (
+        <div className="cond">
+          <b style={{ color: 'var(--teal-d)', fontSize: 13 }}>מבחנים חוזרים — התפלגות ציונים</b>
+          <div className="grid" style={{ marginTop: 8 }}>
+            <NumberField label="ציון מועד א'" value={course.moedAGrade} min={0} max={100} onChange={(v) => set('moedAGrade', v)} />
+            <NumberField label="ציון מועד ב'" value={course.moedBGrade} min={0} max={100} onChange={(v) => set('moedBGrade', v)} />
+            <NumberField label="ציון מועד ג' (אם ניגשת)" value={course.moedCGrade} min={0} max={100} onChange={(v) => set('moedCGrade', v)} />
+            <SelectField label="באיזה מועד עברת?" value={course.passedOn} options={PASSED_ON_OPTIONS} onChange={(v) => set('passedOn', v)} />
+            <CheckField label="קורס חוזר (נכשלת בכל המועדים)" checked={course.isRetake} onChange={(v) => set('isRetake', v)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

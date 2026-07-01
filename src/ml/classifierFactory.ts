@@ -4,8 +4,9 @@
 
 import type { Algorithm } from '../types';
 import { trainPerceptron, type PerceptronModel } from './perceptron';
+import { trainLinearSvm, type SvmModel } from './svm';
 
-export type Classifier = PerceptronModel | MlModelLike;
+export type Classifier = PerceptronModel | SvmModel | MlModelLike;
 
 /** Build and train a classifier. Labels are 0/1. */
 export const trainClassifier = (
@@ -25,9 +26,7 @@ export const trainClassifier = (
     return tree;
   }
   if (algorithm === 'svm') {
-    const svm = new ML.SVM({ kernel: 'linear', C: 1 });
-    svm.train?.(scaledRows, labels.map((label) => (label ? 1 : -1))); // SVM needs ±1 labels
-    return svm;
+    return trainLinearSvm(scaledRows, labels);
   }
   // neural net (MLP) — one hidden layer
   const network = new ML.FNN({ hiddenLayers: [6], iterations: 300, learningRate: 0.1, activation: 'sigmoid' });
@@ -42,6 +41,6 @@ export const classifyOne = (
   features: number[],
 ): number => {
   if (algorithm === 'perceptron') return (model as PerceptronModel).predict(features);
-  if (algorithm === 'svm') return (model as MlModelLike).predict([features])[0] > 0 ? 1 : 0;
+  if (algorithm === 'svm') return (model as SvmModel).predict(features);
   return (model as MlModelLike).predict([features])[0]; // KNN / tree / net return label/index
 };

@@ -4,6 +4,9 @@ export type Algorithm = 'perceptron' | 'svm' | 'tree' | 'knn' | 'nn';
 
 export type HwHonesty = 'independent' | 'partial' | 'cheated';
 
+/** Which exam sitting the student passed on (or none). */
+export type PassedOn = 'first' | 'second' | 'third' | 'none';
+
 export interface HighSchool {
   mathUnits: number;
   mathGrade: number;
@@ -33,7 +36,13 @@ export interface PastCourse {
   methodTutor: number;
   finalExam: number;
   courseAvg: number;
+  /** True if the student sat a second exam (מועד ב'). Reveals the extra fields below. */
   moedB: boolean;
+  moedAGrade: number;   // ציון מועד א'
+  moedBGrade: number;   // ציון מועד ב'
+  moedCGrade: number;   // ציון מועד ג' (אם ניגש)
+  passedOn: PassedOn;   // באיזה מועד עבר
+  isRetake: boolean;    // קורס חוזר — נכשל בכל המועדים ולומד שוב
 }
 
 /** The future course we want a prediction for (no grade). */

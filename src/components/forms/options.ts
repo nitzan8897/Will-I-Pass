@@ -1,9 +1,16 @@
-import type { Algorithm, HwHonesty } from '../../types';
+import type { Algorithm, HwHonesty, PassedOn } from '../../types';
 
 export const HONESTY_OPTIONS: ReadonlyArray<{ value: HwHonesty; label: string }> = [
   { value: 'independent', label: 'עצמאי' },
   { value: 'partial', label: 'חלקי' },
   { value: 'cheated', label: 'העתקה / שימוש ב-AI' },
+];
+
+export const PASSED_ON_OPTIONS: ReadonlyArray<{ value: PassedOn; label: string }> = [
+  { value: 'first', label: "עברתי במועד א'" },
+  { value: 'second', label: "עברתי במועד ב'" },
+  { value: 'third', label: "עברתי במועד ג'" },
+  { value: 'none', label: 'לא עברתי (נכשלתי)' },
 ];
 
 export const ALGORITHM_OPTIONS: ReadonlyArray<{ value: Algorithm; label: string }> = [

@@ -13,7 +13,6 @@ interface MlNamespace {
     maxDepth: number;
     minNumSamples: number;
   }) => MlModelLike;
-  SVM: new (opts: { kernel: string; C: number }) => MlModelLike;
   FNN: new (opts: {
     hiddenLayers: number[];
     iterations: number;
