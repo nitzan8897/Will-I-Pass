@@ -8,8 +8,33 @@ export const FEATURE_NAMES: readonly string[] = [
   'קורס מתמטי', 'קורס מדמ"ח', 'נק"ז', 'שעות למידה ראשונית', 'שעות הכנה למבחן',
   'שעות יומיות פתרון מבחנים', 'תרגול מיידי', 'משקל שיעורי בית', 'מדד העתקה',
   'אחוז לימוד לבד', 'אחוז עם חבר', 'אחוז מורה פרטי', "ניגש למועד ב'",
-  'קורס חוזר', 'מועד שבו עבר',
+  'קורס חוזר', 'מועד שבו עבר', 'ימי הכנה זמינים',
 ];
+
+/** Stable indices into the feature vector (used for weighting and domain rules). */
+export const FEATURE_INDEX = {
+  firstLearnHrs: 8,
+  examPrepHrs: 9,
+  dailyPastExamHrs: 10,
+  prepDays: 20,
+} as const;
+
+/** Per-feature weights applied after scaling. Effort features dominate the model,
+    since study hours are the strongest, most actionable predictor of a grade. */
+export const FEATURE_WEIGHTS: readonly number[] = FEATURE_NAMES.map((_, i) => {
+  if (i === FEATURE_INDEX.prepDays) return 3.5;
+  if (i === FEATURE_INDEX.firstLearnHrs) return 3;
+  if (i === FEATURE_INDEX.examPrepHrs) return 3;
+  if (i === FEATURE_INDEX.dailyPastExamHrs) return 2.5;
+  return 1;
+});
+
+export const applyWeights = (scaled: number[]): number[] =>
+  scaled.map((v, i) => v * FEATURE_WEIGHTS[i]);
+
+/** Days the student has to get ready: total prep hours ÷ daily solving hours. */
+export const prepDays = (examPrepHrs: number, dailyPastExamHrs: number): number =>
+  num(examPrepHrs) / Math.max(num(dailyPastExamHrs), 0.5);
 
 /** first=0 (best), second=1, third=2, none=3 (failed all). Target course → 0. */
 export const passedOnToIndex = (passedOn: PassedOn): number =>
@@ -44,6 +69,7 @@ export const courseToFeatures = (
     course.practiceAfter ? 1 : 0, num(course.hwWeight), honestyToNumber(course),
     num(course.methodSolo), num(course.methodFriend), num(course.methodTutor),
     moedB ? 1 : 0, isRetake ? 1 : 0, passedOnIdx,
+    prepDays(course.examPrepHrs, course.dailyPastExamHrs),
   ];
 };
 

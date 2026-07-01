@@ -4,14 +4,26 @@
    NaN when samples < features, which is the normal case here — 2 courses, 20 features.) */
 
 import type { Algorithm, HighSchool, PastCourse, Prediction, TrainedModel } from '../types';
-import { buildTrainingSet } from './featureExtractor';
+import { buildTrainingSet, applyWeights, FEATURE_INDEX } from './featureExtractor';
 import { fitScaler, scaleFeatures } from './featureScaler';
 import { trainClassifier, classifyOne } from './classifierFactory';
 
 export const MINIMUM_TRAINING_COURSES = 2;
 
+/** Below these, the student is under-prepared. If ALL hold, pass chances drop. */
+const LOW_EFFORT = { firstLearnHrs: 15, examPrepHrs: 15, dailyPastExamHrs: 1.5 } as const;
+const LOW_EFFORT_PENALTY = 22; // grade points removed when under-prepared on all three
+
 const clamp = (value: number, low: number, high: number): number =>
   Math.max(low, Math.min(high, value));
+
+const isUnderPrepared = (raw: number[]): boolean =>
+  raw[FEATURE_INDEX.firstLearnHrs] < LOW_EFFORT.firstLearnHrs &&
+  raw[FEATURE_INDEX.examPrepHrs] < LOW_EFFORT.examPrepHrs &&
+  raw[FEATURE_INDEX.dailyPastExamHrs] < LOW_EFFORT.dailyPastExamHrs;
+
+const gradeToPassProbability = (grade: number): number =>
+  clamp(100 / (1 + Math.exp(-(grade - 60) / 8)), 2, 98);
 
 /** Inverse-distance weighted average of training grades (Shepard). Always finite. */
 const estimateGrade = (query: number[], scaledRows: number[][], grades: number[]): number => {
@@ -44,7 +56,7 @@ export const buildPredictor = (
   }
 
   const scaler = fitScaler(featureRows);
-  const scaledRows = featureRows.map((row) => scaleFeatures(row, scaler));
+  const scaledRows = featureRows.map((row) => applyWeights(scaleFeatures(row, scaler)));
 
   const classifier = trainClassifier(algorithm, scaledRows, passLabels);
 
@@ -61,12 +73,17 @@ export const buildPredictor = (
     trainingAccuracy: Math.round((100 * correct) / scaledRows.length),
 
     predict(rawFeatures: number[]): Prediction {
-      const scaled = scaleFeatures(rawFeatures, this.scaler);
-      const willPass = classifyOne(algorithm, classifier, scaled) === 1;
-      const estimatedGrade = clamp(estimateGrade(scaled, scaledRows, grades), 0, 100);
-      // pass probability derived from the estimated grade (sigmoid around the 60 threshold)
-      const passProbability = clamp(100 / (1 + Math.exp(-(estimatedGrade - 60) / 8)), 2, 98);
-      return { willPass, estimatedGrade, passProbability };
+      const scaled = applyWeights(scaleFeatures(rawFeatures, this.scaler));
+      let willPass = classifyOne(algorithm, classifier, scaled) === 1;
+      let estimatedGrade = clamp(estimateGrade(scaled, scaledRows, grades), 0, 100);
+
+      // domain rule: under-prepared on all three effort dimensions → chances drop
+      if (isUnderPrepared(rawFeatures)) {
+        estimatedGrade = clamp(estimatedGrade - LOW_EFFORT_PENALTY, 0, 100);
+        willPass = willPass && estimatedGrade >= 60;
+      }
+      // pass probability derived from the (adjusted) estimated grade — sigmoid around 60
+      return { willPass, estimatedGrade, passProbability: gradeToPassProbability(estimatedGrade) };
     },
   };
   return { model };

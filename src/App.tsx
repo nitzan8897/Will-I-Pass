@@ -44,7 +44,7 @@ export const App = (): ReactElement => {
             <ExportTab highSchool={highSchool} pastCourses={pastCourses} target={target} algorithm={algorithm} />
           )}
           <div className="foot">
-            כלי לימוד אינטראקטיבי · למידת מכונה וכריית נתונים · מודלים מספריית ml.js, מאומנים על נתוני הסטודנט
+            כלי לימוד אינטראקטיבי · למידת מכונה וכריית נתונים · מודלים מספריית ml.js, מאומנים על נתוני הסטודנט · פותח ב-❤️ על ידי ניצן אברג'יל וקלוד קוד 👑
           </div>
         </main>
       </div>
