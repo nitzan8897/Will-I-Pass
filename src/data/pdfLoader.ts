@@ -42,10 +42,11 @@ export const parseTranscriptLine = (line: string): PastCourse | null => {
   const courseNumber = tokens.find((t) => /^\d{6,7}$/.test(t));
   if (!courseNumber) return null;
 
-  const grade = tokens
-    .map(Number)
-    .find((n) => Number.isInteger(n) && n >= 40 && n <= 100 && String(n).length <= 3);
-  if (grade === undefined) return null; // no grade → not a training example
+  // a grade is a pure 2-3 digit integer in [40,100]; excludes decimals (credits),
+  // 4-digit years and single-digit semester numbers.
+  const gradeToken = tokens.find((t) => /^\d{2,3}$/.test(t) && Number(t) >= 40 && Number(t) <= 100);
+  if (gradeToken === undefined) return null; // no grade → not a training example
+  const grade = Number(gradeToken);
 
   const description = tokens.filter((t) => HEBREW.test(t)).join(' ');
   return makePastCourse({
