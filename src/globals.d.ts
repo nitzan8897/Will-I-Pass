@@ -19,10 +19,6 @@ interface MlNamespace {
     learningRate: number;
     activation: string;
   }) => MlModelLike;
-  MultivariateLinearRegression: new (
-    x: number[][],
-    y: number[][],
-  ) => { predict(row: number[]): number[] };
 }
 
 declare const ML: MlNamespace;
