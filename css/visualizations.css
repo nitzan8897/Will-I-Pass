@@ -1,0 +1,28 @@
+/* ===== עיצוב לשונית הוויזואליזציות (SVG) ===== */
+.viz-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card.viz{margin-bottom:0;display:flex;flex-direction:column}
+.card.viz .sub{margin-bottom:12px;font-size:13px}
+.viz-svg{width:100%;height:auto;background:#f8fbff;border:1px solid var(--line);border-radius:12px;display:block;touch-action:none}
+
+.ctl{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.ctl input[type=range]{accent-color:var(--teal);flex:1;min-width:120px}
+.mini{font-size:12px;color:var(--muted)}
+.legend{font-size:13px;color:var(--muted);margin-top:10px;display:flex;gap:18px;flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:6px}
+.swatch,.legend i{width:14px;height:14px;border-radius:50%;display:inline-block}
+.legend .r{background:var(--bad)} .legend .b{background:var(--blue)} .legend .g{background:var(--ok)}
+
+/* מחלקות לאלמנטי SVG */
+.vr{fill:var(--bad)} .vb{fill:var(--blue)} .vg{fill:var(--ok)}
+.v-support{stroke:#0d2b52;stroke-width:2.5;fill:none}      /* טבעת וקטור תמיכה */
+.v-grid{stroke:#e3ecf6;stroke-width:1}
+.v-axis{stroke:#9fb0c8;stroke-width:1.5}
+.v-separator{stroke:var(--deep);stroke-width:2.5}
+.v-margin{stroke:var(--teal);stroke-width:1.5;stroke-dasharray:6 5}
+.v-edge{stroke:#cfd9e8;stroke-width:1.2}
+.v-neighbor{stroke:var(--teal);stroke-width:1.5;stroke-dasharray:3 3}
+.v-label{fill:var(--muted);font-size:12px;font-family:inherit}
+.v-node{fill:#fff;stroke:var(--blue);stroke-width:1.5}
+.grabbable{cursor:grab} .grabbable:active{cursor:grabbing}
+
+@media(max-width:900px){.viz-grid{grid-template-columns:1fr}}
